@@ -122,11 +122,6 @@ interface IProps extends WithTranslation {
     _reactionsEnabled: boolean;
 
     /**
-     * Whether the toolbox should be shifted up or not.
-     */
-    _shiftUp: boolean;
-
-    /**
      * The enabled buttons.
      */
     _toolbarButtons: Array<string>;
@@ -187,14 +182,13 @@ const Toolbox = ({
     _overflowMenuVisible,
     _reactionsButtonEnabled,
     _reactionsEnabled,
-    _shiftUp,
     _toolbarButtons,
     _visible,
     dispatch,
     t,
     toolbarButtons
 }: IProps) => {
-    const { classes, cx } = useStyles();
+    const { classes } = useStyles();
     const _toolboxRef = useRef<HTMLDivElement>(null);
 
     useKeyboardShortcuts(toolbarButtons);
@@ -490,7 +484,7 @@ const Toolbox = ({
 
     return (
         <div
-            className = { cx(rootClassNames, _shiftUp && 'shift-up') }
+            className = { rootClassNames }
             id = 'new-toolbox'>
             {renderToolboxContent()}
         </div>
@@ -545,7 +539,6 @@ function _mapStateToProps(state: IReduxState, ownProps: any) {
         _overflowDrawer: overflowDrawer,
         _reactionsButtonEnabled: isReactionsButtonEnabled(state),
         _reactionsEnabled,
-        _shiftUp: state['features/toolbox'].shiftUp,
         _toolbarButtons: toolbarButtons,
         _visible: isToolboxVisible(state)
     };
