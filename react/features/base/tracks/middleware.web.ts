@@ -127,7 +127,7 @@ MiddlewareRegistry.register(store => next => action => {
     }
 
     case CONFERENCE_JOINED: {
-        _addsetCameraFacingModeListener(action.conference);
+        _addSetCameraFacingModeListener(action.conference);
         break;
     }
     }
@@ -142,7 +142,7 @@ MiddlewareRegistry.register(store => next => action => {
  * @param {IJitsiConference} conference - The conference.
  * @returns {void}
  */
-function _addsetCameraFacingModeListener(conference: IJitsiConference) {
+function _addSetCameraFacingModeListener(conference: IJitsiConference) {
     conference.on(
         JitsiConferenceEvents.ENDPOINT_MESSAGE_RECEIVED,
         (...args: any) => {
