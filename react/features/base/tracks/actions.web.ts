@@ -19,12 +19,15 @@ import { MEDIA_TYPE, VIDEO_TYPE } from '../media/constants';
 
 import {
     addLocalTrack,
-    replaceLocalTrack
+    replaceLocalTrack,
+    toggleCamera
 } from './actions.any';
 import {
     createLocalTracksF,
     getLocalDesktopTrack,
-    getLocalJitsiAudioTrack
+    getLocalJitsiAudioTrack,
+    getLocalVideoTrack,
+    isToggleCameraEnabled
 } from './functions';
 import { IShareOptions, IToggleScreenSharingOptions } from './types';
 
@@ -262,4 +265,39 @@ async function _toggleScreenSharing(
         // Notify the external API.
         APP.API.notifyScreenSharingStatusChanged(enable, screensharingDetails);
     }
+}
+
+/**
+ * Sets the camera facing mode(environment/user). If facing mode not provided, it will do a toggle.
+ *
+ * @param {string | undefined} facingMode - The selected facing mode.
+ * @returns {void}
+ */
+export function setCameraFacingMode(facingMode: string | undefined) {
+    return async (dispatch: IStore['dispatch'], getState: IStore['getState']) => {
+        const state = getState();
+
+        if (!isToggleCameraEnabled(state)) {
+            return;
+        }
+
+        if (!facingMode) {
+            dispatch(toggleCamera());
+
+            return;
+        }
+
+        const tracks = state['features/base/tracks'];
+        const localVideoTrack = getLocalVideoTrack(tracks)?.jitsiTrack;
+
+        if (!tracks || !localVideoTrack) {
+            return;
+        }
+
+        const currentFacingMode = localVideoTrack.getCameraFacingMode();
+
+        if (currentFacingMode !== facingMode) {
+            dispatch(toggleCamera());
+        }
+    };
 }

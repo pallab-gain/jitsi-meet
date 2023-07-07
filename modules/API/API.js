@@ -30,7 +30,7 @@ import { toggleDialog } from '../../react/features/base/dialog/actions';
 import { isSupportedBrowser } from '../../react/features/base/environment/environment';
 import { parseJWTFromURLParams } from '../../react/features/base/jwt/functions';
 import JitsiMeetJS, { JitsiRecordingConstants } from '../../react/features/base/lib-jitsi-meet';
-import { MEDIA_TYPE, VIDEO_TYPE } from '../../react/features/base/media/constants';
+import { CAPTURE_SCREENSHOT_MESSAGE, MEDIA_TYPE, VIDEO_TYPE } from '../../react/features/base/media/constants';
 import {
     grantModerator,
     kickParticipant,
@@ -50,8 +50,8 @@ import {
 } from '../../react/features/base/participants/functions';
 import { updateSettings } from '../../react/features/base/settings/actions';
 import { getDisplayName } from '../../react/features/base/settings/functions.web';
-import { toggleCamera } from '../../react/features/base/tracks/actions.any';
-import { isToggleCameraEnabled } from '../../react/features/base/tracks/functions';
+import { setCameraFacingMode } from '../../react/features/base/tracks/actions.web';
+import { CAMERA_FACING_MODE_MESSAGE } from '../../react/features/base/tracks/constants';
 import {
     autoAssignToBreakoutRooms,
     closeBreakoutRoom,
@@ -395,12 +395,8 @@ function initCommands() {
             sendAnalytics(createApiEvent('film.strip.resize'));
             APP.store.dispatch(resizeFilmStrip(options.width));
         },
-        'toggle-camera': () => {
-            if (!isToggleCameraEnabled(APP.store.getState())) {
-                return;
-            }
-
-            APP.store.dispatch(toggleCamera());
+        'toggle-camera': facingMode => {
+            APP.store.dispatch(setCameraFacingMode(facingMode));
         },
         'toggle-camera-mirror': () => {
             const state = APP.store.getState();
@@ -528,6 +524,29 @@ function initCommands() {
             } catch (err) {
                 logger.error('Failed sending endpoint text message', err);
             }
+        },
+        'send-capture-screenshot-message': to => {
+            if (!to || !isLocalParticipantModerator(APP.store.getState())) {
+                logger.warn('Participant id not set or participant not moderator');
+
+                return;
+            }
+
+            APP.conference.sendEndpointMessage(to, {
+                name: CAPTURE_SCREENSHOT_MESSAGE
+            });
+        },
+        'send-camera-facing-mode-message': (to, facingMode) => {
+            if (!to || !isLocalParticipantModerator(APP.store.getState())) {
+                logger.warn('Participant id not set or participant not moderator');
+
+                return;
+            }
+
+            APP.conference.sendEndpointMessage(to, {
+                name: CAMERA_FACING_MODE_MESSAGE,
+                facingMode
+            });
         },
         'overwrite-names': participantList => {
             logger.debug('Overwrite names command received');
@@ -1772,6 +1791,22 @@ class API {
             name: 'screen-sharing-status-changed',
             on,
             details
+        });
+    }
+
+    /**
+     * Notify external application (if API is enabled) that a participant's screen
+     * capture has been received.
+     *
+     * @param {Object} senderInfo - The sender's info.
+     * @param {string} dataURL - The image data.
+     * @returns {void}
+     */
+    notifyLargeVideoScreenshotReceived(senderInfo, dataURL) {
+        this._sendEvent({
+            name: 'screen-capture-received',
+            senderInfo,
+            dataURL
         });
     }
 

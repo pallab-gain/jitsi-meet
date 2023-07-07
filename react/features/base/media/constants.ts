@@ -8,6 +8,11 @@ export const CAMERA_FACING_MODE = {
     USER: 'user'
 };
 
+/**
+ * The payload name for the capture screenshot remotely message.
+ */
+export const CAPTURE_SCREENSHOT_MESSAGE = 'capture-screenshot-message';
+
 export type MediaType = 'audio' | 'video' | 'screenshare';
 
 /**
@@ -25,6 +30,10 @@ export const MEDIA_TYPE: {
         VIDEO: 'video'
     };
 
+/**
+ * The payload name for the received screenshot message.
+ */
+export const SEND_SCREENSHOT_MESSAGE = 'send-screenshot-message';
 
 /* eslint-disable no-bitwise */
 

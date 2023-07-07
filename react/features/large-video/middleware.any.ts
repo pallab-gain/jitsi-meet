@@ -16,8 +16,6 @@ import { TOGGLE_DOCUMENT_EDITING } from '../etherpad/actionTypes';
 import { selectParticipantInLargeVideo } from './actions';
 import logger from './logger';
 
-import './subscriber';
-
 /**
  * Middleware that catches actions related to participants and tracks and
  * dispatches an action to select a participant depicted by LargeVideo.
@@ -72,3 +70,4 @@ MiddlewareRegistry.register(store => next => action => {
 
     return result;
 });
+

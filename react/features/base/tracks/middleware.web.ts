@@ -3,7 +3,10 @@ import { AnyAction } from 'redux';
 import { IStore } from '../../app/types';
 import { hideNotification } from '../../notifications/actions';
 import { isPrejoinPageVisible } from '../../prejoin/functions';
+import { CONFERENCE_JOINED } from '../conference/actionTypes';
+import { IJitsiConference } from '../conference/reducer';
 import { getAvailableDevices } from '../devices/actions.web';
+import { JitsiConferenceEvents } from '../lib-jitsi-meet';
 import { setScreenshareMuted } from '../media/actions';
 import {
     MEDIA_TYPE,
@@ -20,10 +23,12 @@ import {
     TRACK_UPDATED
 } from './actionTypes';
 import {
+    setCameraFacingMode,
     showNoDataFromSourceVideoError,
     toggleScreensharing,
     trackNoDataFromSourceNotificationInfoChanged
 } from './actions.web';
+import { CAMERA_FACING_MODE_MESSAGE } from './constants';
 import {
     getTrackByJitsiTrack
 } from './functions.web';
@@ -121,10 +126,36 @@ MiddlewareRegistry.register(store => next => action => {
         return result;
     }
 
+    case CONFERENCE_JOINED: {
+        _addsetCameraFacingModeListener(action.conference);
+        break;
+    }
     }
 
     return next(action);
 });
+
+/**
+ * Registers listener for {@link JitsiConferenceEvents.ENDPOINT_MESSAGE_RECEIVED} that
+ * will perform various chat related activities.
+ *
+ * @param {IJitsiConference} conference - The conference.
+ * @returns {void}
+ */
+function _addsetCameraFacingModeListener(conference: IJitsiConference) {
+    conference.on(
+        JitsiConferenceEvents.ENDPOINT_MESSAGE_RECEIVED,
+        (...args: any) => {
+            if (args && args.length >= 2) {
+                const [ , eventData ] = args;
+
+                if (eventData.name === CAMERA_FACING_MODE_MESSAGE) {
+                    APP.store.dispatch(setCameraFacingMode(eventData.facingMode));
+                }
+            }
+        }
+    );
+}
 
 /**
  * Handles no data from source errors.
