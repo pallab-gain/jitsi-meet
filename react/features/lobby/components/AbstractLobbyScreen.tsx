@@ -445,12 +445,12 @@ export function _mapStateToProps(state: IReduxState) {
     const { disableLobbyPassword } = getSecurityUiConfig(state);
     const showCopyUrlButton = inviteEnabledFlag || !disableInviteFunctions;
     const deviceStatusVisible = isDeviceStatusVisible(state);
-    const { membersOnly } = state['features/base/conference'];
+    const { membersOnly, error: conferenceError } = state['features/base/conference'];
     const { isLobbyChatActive, lobbyMessageRecipient, messages } = state['features/chat'];
 
     return {
         _deviceStatusVisible: deviceStatusVisible,
-        _isDisplayNameRequiredActive: isDisplayNameRequired,
+        _isDisplayNameRequiredActive: Boolean(isDisplayNameRequired && conferenceError && !membersOnly),
         _knocking: knocking,
         _lobbyChatMessages: messages,
         _lobbyMessageRecipient: lobbyMessageRecipient?.name,

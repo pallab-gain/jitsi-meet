@@ -12,6 +12,7 @@ import {
     KNOCKING_PARTICIPANT_LEFT,
     REMOVE_LOBBY_CHAT_WITH_MODERATOR,
     SET_KNOCKING_STATE,
+    SET_LOBBY_DISPLAY_NAME_REQUIRED,
     SET_LOBBY_MODE_ENABLED,
     SET_LOBBY_PARTICIPANT_CHAT_STATE,
     SET_LOBBY_VISIBILITY,
@@ -29,6 +30,13 @@ const DEFAULT_STATE = {
 };
 
 export interface ILobbyState {
+
+    /**
+     * This required display name maybe coming from jiconop informing the lobby is enabled,
+     * and we should require a display name in UI before even trying to join.
+     * Or it can be after a conference error when we tried to join into a room with no display name
+     * when lobby is enabled in the room.
+     */
     isDisplayNameRequired: boolean;
     knocking: boolean;
     knockingParticipants: IKnockingParticipant[];
@@ -76,6 +84,11 @@ ReducerRegistry.register<ILobbyState>('features/lobby', (state = DEFAULT_STATE, 
             ...state,
             knocking: action.knocking,
             passwordJoinFailed: false
+        };
+    case SET_LOBBY_DISPLAY_NAME_REQUIRED:
+        return {
+            ...state,
+            isDisplayNameRequired: true
         };
     case SET_LOBBY_MODE_ENABLED:
         return {

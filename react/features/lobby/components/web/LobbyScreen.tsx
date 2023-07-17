@@ -158,6 +158,7 @@ class LobbyScreen extends AbstractLobbyScreen<IProps> {
         return (
             <>
                 <Input
+                    autoFocus = { true }
                     className = 'lobby-prejoin-input'
                     error = { _isDisplayNameRequiredActive }
                     id = 'lobby-name-field'
